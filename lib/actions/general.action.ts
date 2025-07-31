@@ -38,23 +38,14 @@ export async function createFeedback(params: CreateFeedbackParams) {
         "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
     });
 
-    // Type assertion to fix 'object' is of type 'unknown'
-    const feedbackObject = object as {
-      totalScore: number;
-      categoryScores: Record<string, number>;
-      strengths: string[];
-      areasForImprovement: string[];
-      finalAssessment: string;
-    };
-
     const feedback = {
       interviewId: interviewId,
       userId: userId,
-      totalScore: feedbackObject.totalScore,
-      categoryScores: feedbackObject.categoryScores,
-      strengths: feedbackObject.strengths,
-      areasForImprovement: feedbackObject.areasForImprovement,
-      finalAssessment: feedbackObject.finalAssessment,
+      totalScore: object.totalScore,
+      categoryScores: object.categoryScores,
+      strengths: object.strengths,
+      areasForImprovement: object.areasForImprovement,
+      finalAssessment: object.finalAssessment,
       createdAt: new Date().toISOString(),
     };
 
