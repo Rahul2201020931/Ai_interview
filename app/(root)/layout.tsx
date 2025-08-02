@@ -11,14 +11,28 @@ const Layout = async ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="root-layout">
-      <nav>
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="MockMate Logo" width={38} height={32} />
-          <h2 className="text-primary-100">PrepWise</h2>
+      {/* Shooting Stars */}
+      <div className="shooting-star"></div>
+      <div className="shooting-star"></div>
+      <div className="shooting-star"></div>
+      <div className="shooting-star"></div>
+      
+      <nav className="animate-fadeIn">
+        <Link href="/" className="flex items-center gap-2 group hover-lift">
+          <Image 
+            src="/logo.svg" 
+            alt="MockMate Logo" 
+            width={38} 
+            height={32} 
+            className="transition-all duration-300 group-hover:scale-110"
+          />
+          <h2 className="text-primary-100 gradient-text">Preply</h2>
         </Link>
       </nav>
 
-      {children}
+      <div className="animate-slideUp">
+        {children}
+      </div>
     </div>
   );
 };

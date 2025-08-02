@@ -327,41 +327,45 @@ const Agent = ({
 
   return (
     <>
-      <div className="call-view">
+      <div className="call-view animate-fadeIn">
         {/* AI Interviewer Card */}
-        <div className="card-interviewer">
-          <div className="avatar">
+        <div className="card-interviewer animate-slideUp">
+          <div className="avatar group">
             <Image
               src="/ai-avatar.png"
               alt="profile-image"
               width={65}
               height={54}
-              className="object-cover"
+              className="object-cover transition-all duration-300 group-hover:scale-110"
             />
             {isSpeaking && <span className="animate-speak" />}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-200/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <h3>AI Interviewer</h3>
+          <h3 className="gradient-text">AI Interviewer</h3>
         </div>
 
         {/* User Profile Card */}
-        <div className="card-border">
+        <div className="card-border animate-slideUp" style={{ animationDelay: '0.2s' }}>
           <div className="card-content">
-            <Image
-              src="/user-avatar.png"
-              alt="profile-image"
-              width={539}
-              height={539}
-              className="rounded-full object-cover size-[120px]"
-            />
-            <h3>{userName}</h3>
+            <div className="relative group">
+              <Image
+                src="/user-avatar.png"
+                alt="profile-image"
+                width={539}
+                height={539}
+                className="rounded-full object-cover size-[120px] transition-all duration-300 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-200/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
+            <h3 className="gradient-text">{userName}</h3>
           </div>
         </div>
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="error-border">
-          <div className="error-content">
+        <div className="error-border animate-fadeIn">
+          <div className="error-content glass">
             <p className="text-red-500 font-semibold">Error: {error}</p>
             <div className="mt-2 text-sm text-gray-600">
               <p>Debug Info:</p>
@@ -370,25 +374,25 @@ const Agent = ({
             <div className="mt-2 flex gap-2">
               <button 
                 onClick={handleRetry}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-all duration-300 transform hover:scale-105"
               >
                 Try Again
               </button>
               <button 
                 onClick={testVapiConnection}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-all duration-300 transform hover:scale-105"
               >
                 Test Connection
               </button>
               <button 
                 onClick={testAssistant}
-                className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-all duration-300 transform hover:scale-105"
               >
                 Test Assistant
               </button>
               <button 
                 onClick={showConfig}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
               >
                 Show Config
               </button>
@@ -399,9 +403,9 @@ const Agent = ({
 
       {/* Transcript */}
       {lastMessage && (
-        <div className="transcript-border">
+        <div className="transcript-border animate-fadeIn">
           <div className="transcript">
-            <p className={cn("transition-opacity duration-500 animate-fadeIn")}>
+            <p className={cn("transition-opacity duration-500 animate-fadeIn shimmer")}>
               {lastMessage}
             </p>
           </div>
@@ -409,10 +413,10 @@ const Agent = ({
       )}
 
       {/* Call Controls */}
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center animate-slideUp" style={{ animationDelay: '0.4s' }}>
         {callStatus !== CallStatus.ACTIVE ? (
           <button 
-            className="relative btn-call" 
+            className="relative btn-call group" 
             onClick={handleCall}
             disabled={callStatus === CallStatus.CONNECTING}
           >
@@ -422,17 +426,35 @@ const Agent = ({
                 callStatus !== CallStatus.CONNECTING && "hidden"
               )}
             />
-            <span className="relative">
+            <span className="relative flex items-center gap-2">
               {callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED
                 ? "Call"
                 : callStatus === CallStatus.CONNECTING
                 ? "Connecting..."
                 : "Call"}
+              <svg 
+                className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
             </span>
           </button>
         ) : (
-          <button className="btn-disconnect" onClick={handleDisconnect}>
-            End
+          <button className="btn-disconnect group" onClick={handleDisconnect}>
+            <span className="flex items-center gap-2">
+              End
+              <svg 
+                className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </span>
           </button>
         )}
       </div>

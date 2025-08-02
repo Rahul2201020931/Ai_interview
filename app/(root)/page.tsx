@@ -16,9 +16,9 @@ async function Home() {
   // Redirect if user is not authenticated
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold mb-4">Please sign in to continue</h1>
-        <Link href="/sign-in" className="btn-primary">
+      <div className="flex flex-col items-center justify-center min-h-screen animate-fadeIn">
+        <h1 className="text-2xl font-bold mb-4 gradient-text">Please sign in to continue</h1>
+        <Link href="/sign-in" className="btn-primary animate-pulse-glow">
           Sign In
         </Link>
       </div>
@@ -35,14 +35,14 @@ async function Home() {
 
   return (
     <>
-      <section className="card-cta">
+      <section className="card-cta animate-fadeIn">
         <div className="flex flex-col gap-6 max-w-lg">
-          <h2>Get Interview-Ready with AI-Powered Practice & Feedback</h2>
-          <p className="text-lg">
+          <h2 className="gradient-text">Get Interview-Ready with AI-Powered Practice & Feedback</h2>
+          <p className="text-lg shimmer">
             Practice real interview questions & get instant feedback
           </p>
 
-          <Button asChild className="btn-primary max-sm:w-full">
+          <Button asChild className="btn-primary max-sm:w-full animate-float">
             <Link href="/interview">Start an Interview</Link>
           </Button>
         </div>
@@ -56,46 +56,76 @@ async function Home() {
         />
       </section>
 
-      <section className="flex flex-col gap-6 mt-8">
-        <h2>Your Interviews</h2>
+      <section className="flex flex-col gap-6 mt-8 animate-slideUp">
+        <h2 className="gradient-text">Your Interviews</h2>
 
         <div className="interviews-section">
           {hasPastInterviews ? (
-            userInterviews?.map((interview) => (
-              <InterviewCard
-                key={interview.id}
-                userId={user.id}
-                interviewId={interview.id}
-                role={interview.role}
-                type={interview.type}
-                techstack={interview.techstack}
-                createdAt={interview.createdAt}
-              />
+            userInterviews?.map((interview, index) => (
+              <div 
+                key={interview.id} 
+                className="animate-fadeIn"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <InterviewCard
+                  userId={user.id}
+                  interviewId={interview.id}
+                  role={interview.role}
+                  type={interview.type}
+                  techstack={interview.techstack}
+                  createdAt={interview.createdAt}
+                />
+              </div>
             ))
           ) : (
-            <p>You haven&apos;t taken any interviews yet</p>
+            <div className="glass rounded-2xl p-8 text-center animate-fadeIn">
+              <Image 
+                src="/file.svg" 
+                alt="No interviews" 
+                width={64} 
+                height={64} 
+                className="mx-auto mb-4 opacity-50"
+              />
+              <p className="text-lg">You haven&apos;t taken any interviews yet</p>
+              <p className="text-sm text-light-400 mt-2">Start your first interview to see your progress here</p>
+            </div>
           )}
         </div>
       </section>
 
-      <section className="flex flex-col gap-6 mt-8">
-        <h2>Take Interviews</h2>
+      <section className="flex flex-col gap-6 mt-8 animate-slideUp">
+        <h2 className="gradient-text">Take Interviews</h2>
 
         <div className="interviews-section">
           {hasUpcomingInterviews ? (
-            allInterview?.map((interview) => (
-              <InterviewCard
-                key={interview.id}
-                userId={user.id}
-                interviewId={interview.id}
-                role={interview.role}
-                type={interview.type}
-                techstack={interview.techstack}
-                createdAt={interview.createdAt}
-              />
+            allInterview?.map((interview, index) => (
+              <div 
+                key={interview.id} 
+                className="animate-fadeIn"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <InterviewCard
+                  userId={user.id}
+                  interviewId={interview.id}
+                  role={interview.role}
+                  type={interview.type}
+                  techstack={interview.techstack}
+                  createdAt={interview.createdAt}
+                />
+              </div>
             ))
           ) : (
-            <p>There are no interviews available</p>
+            <div className="glass rounded-2xl p-8 text-center animate-fadeIn">
+              <Image 
+                src="/calendar.svg" 
+                alt="No interviews" 
+                width={64} 
+                height={64} 
+                className="mx-auto mb-4 opacity-50"
+              />
+              <p className="text-lg">There are no interviews available</p>
+              <p className="text-sm text-light-400 mt-2">Check back later for new interview opportunities</p>
+            </div>
           )}
         </div>
       </section>
