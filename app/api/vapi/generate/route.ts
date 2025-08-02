@@ -1,19 +1,24 @@
-import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
 import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
 
-// Define the expected shape of the request body
+
+// Allow usage with the App Router on Vercel's Edge runtime
+//export const runtime = "edge";
+export const runtime = "nodejs"; 
+
+// Define the shape of the request body
 interface InterviewRequest {
   type: string;
   role: string;
   level: string;
-  techstack: string;
+  techstack: string | string[];
   amount: number;
   userid: string;
 }
 
-// POST handler
+// POST /api/vapi/generate
 export async function POST(request: Request) {
   let body: InterviewRequest;
 
@@ -25,7 +30,7 @@ export async function POST(request: Request) {
 
   const { type, role, level, techstack, amount, userid } = body;
 
-  // Validate fields
+  // Check for required fields
   if (!type || !role || !level || !techstack || !amount || !userid) {
     return Response.json(
       { success: false, error: "Missing required fields." },
@@ -34,56 +39,56 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Generate questions using Gemini
+    // Normalize techstack into array
+    const techstackArray =
+      typeof techstack === "string"
+        ? techstack.split(",").map((t) => t.trim())
+        : Array.isArray(techstack)
+        ? techstack.map((t) => t.trim())
+        : [];
+
+    // Generate AI questions using Gemini model
     const { text: questions } = await generateText({
-      // FIX 1: Using the correct, standard model name
       model: google("gemini-1.5-flash-latest"),
       prompt: `Prepare questions for a job interview.
-        The job role is ${role}.
-        The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack}.
-        The focus between behavioural and technical questions should lean towards: ${type}.
-        The amount of questions required is: ${amount}.
-        Please return only the questions, without any additional text.
-        The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
-        Return the questions formatted like this:
-        ["Question 1", "Question 2", "Question 3"]
-        Thank you! <3
-      `,
+The job role is ${role}.
+The job experience level is ${level}.
+The tech stack used in the job is: ${techstackArray.join(", ")}.
+The focus between behavioural and technical questions should lean towards: ${type}.
+The amount of questions required is: ${amount}.
+Please return only the questions, without any additional text or formatting.
+The questions are going to be read by a voice assistant, so avoid special characters like "/" or "*".
+Return the result in this format:
+["Question 1", "Question 2", "Question 3"]
+Thanks!`,
     });
 
-    console.log("Generated questions raw text:", questions);
+    console.log("AI raw response:", questions);
 
-    // FIX 2: Using a robust method to parse the JSON from the AI's response
+    // Try to extract valid JSON array from the AI response
     let parsedQuestions: string[];
     try {
-      // Find the string that looks like an array "[...]" in the AI's response
       const jsonMatch = questions.match(/\[.*\]/s);
-
-      if (!jsonMatch) {
-        throw new Error("Could not find a valid JSON array in the AI response.");
-      }
-
-      // Parse only the matched part
+      if (!jsonMatch) throw new Error("No JSON array found.");
       parsedQuestions = JSON.parse(jsonMatch[0]);
 
       if (!Array.isArray(parsedQuestions)) {
-        throw new Error("Parsed result is not an array.");
+        throw new Error("AI response is not an array.");
       }
     } catch (err) {
-      console.error("Failed to parse questions from AI response:", err, "Raw Response:", questions);
+      console.error("Parsing error:", err, "\nRaw response:", questions);
       return Response.json(
-        { success: false, error: "Failed to process questions from AI." },
+        { success: false, error: "Could not parse questions from AI response." },
         { status: 500 }
       );
     }
 
-    // Prepare the interview object
+    // Prepare interview object
     const interview = {
       role,
       type,
       level,
-      techstack: techstack.split(",").map((t) => t.trim()),
+      techstack: techstackArray,
       questions: parsedQuestions,
       userId: userid,
       finalized: true,
@@ -91,28 +96,21 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    // Save to Firestore
+    // Save interview in Firestore
     await db.collection("interviews").add(interview);
 
-    return Response.json({ success: true }, { status: 200 });
+    return Response.json({ success: true, questions: parsedQuestions }, { status: 200 });
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error generating interview:", error.message);
-      return Response.json(
-        { success: false, error: error.message },
-        { status: 500 }
-      );
-    } else {
-      console.error("Unknown error:", error);
-      return Response.json(
-        { success: false, error: "Unknown error occurred" },
-        { status: 500 }
-      );
-    }
+    console.error("Generation error:", error);
+    return Response.json(
+      { success: false, error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }
 
-// GET handler
+// Optional GET handler for testing
 export async function GET() {
-  return Response.json({ success: true, data: "Thank you!" }, { status: 200 });
+  return Response.json({ success: true, message: "API is live 🚀" }, { status: 200 });
 }
+  
