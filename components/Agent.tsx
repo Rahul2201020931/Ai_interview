@@ -188,13 +188,10 @@ const Agent = ({
 
       // Validate Vapi configuration
       const vapiToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
-      const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
       
       console.log("🔍 Vapi Configuration Check:", {
         hasToken: !!vapiToken,
-        hasWorkflowId: !!workflowId,
         tokenLength: vapiToken?.length,
-        workflowId: workflowId,
         tokenPrefix: vapiToken?.substring(0, 10) + "...",
         type: type
       });
@@ -204,33 +201,16 @@ const Agent = ({
       }
 
       if (type === "generate") {
-        if (!workflowId) {
-          throw new Error("Vapi workflow ID is not configured. Please set NEXT_PUBLIC_VAPI_WORKFLOW_ID in your environment variables.");
-        }
+        // For generate type, we'll use the interviewer with a different prompt
+        console.log("🚀 Starting Vapi call for interview generation");
 
-        console.log("🚀 Starting Vapi call with workflow:", {
-          workflowId,
-          userName,
-          userId,
+        await vapi.start(interviewer as CreateAssistantDTO, {
           variableValues: {
+            questions: "Please help me collect information for creating a personalized interview. Ask me for my role (frontend, backend, fullstack), experience level (entry, mid, senior), interview type (technical, behavioral, mixed), tech stack, and number of questions I want.",
             username: userName,
             userid: userId,
-          }
+          },
         });
-
-        // Updated according to new Vapi guidelines
-        await vapi.start(
-          undefined,
-          undefined,
-          undefined,
-          workflowId,
-          {
-            variableValues: {
-              username: userName,
-              userid: userId,
-            },
-          }
-        );
       } else {
         let formattedQuestions = "";
         if (questions) {
@@ -273,11 +253,9 @@ const Agent = ({
       console.log("🧪 Testing Vapi connection...");
       
       const vapiToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
-      const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
       
       console.log("Test Configuration:", {
         token: vapiToken ? `${vapiToken.substring(0, 10)}...` : "Missing",
-        workflowId: workflowId || "Missing",
         tokenLength: vapiToken?.length
       });
 
@@ -303,58 +281,48 @@ const Agent = ({
     }
   };
 
-  // Test workflow specifically
-  const testWorkflow = async () => {
+  // Test assistant specifically
+  const testAssistant = async () => {
     try {
-      console.log("🧪 Testing workflow specifically...");
+      console.log("🧪 Testing assistant specifically...");
       
       const vapiToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
-      const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
       
-      console.log("🔍 Current Workflow ID:", workflowId);
       console.log("🔍 Token available:", !!vapiToken);
       
-      if (!vapiToken || !workflowId) {
-        throw new Error("Missing Vapi token or workflow ID");
+      if (!vapiToken) {
+        throw new Error("Missing Vapi token");
       }
 
-      console.log("🔍 Testing workflow:", workflowId);
+      console.log("🔍 Testing assistant...");
       
-      await vapi.start(
-        undefined,
-        undefined,
-        undefined,
-        workflowId,
-        {
-          variableValues: {
-            username: "Test User",
-            userid: "test-user-id",
-          },
-        }
-      );
+      await vapi.start(interviewer as CreateAssistantDTO, {
+        variableValues: {
+          questions: "Test question 1\nTest question 2\nTest question 3",
+          username: "Test User",
+          userid: "test-user-id",
+        },
+      });
 
-      console.log("✅ Workflow test call initiated successfully!");
+      console.log("✅ Assistant test call initiated successfully!");
       
     } catch (error) {
-      console.error("❌ Workflow test failed:", error);
-      setError(`Workflow test failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+      console.error("❌ Assistant test failed:", error);
+      setError(`Assistant test failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
   // Display current configuration
   const showConfig = () => {
     const vapiToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
-    const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
     
     console.log("🔧 Current Configuration:", {
       token: vapiToken ? `${vapiToken.substring(0, 10)}...` : "Missing",
-      workflowId: workflowId || "Missing",
       tokenLength: vapiToken?.length,
       hasToken: !!vapiToken,
-      hasWorkflowId: !!workflowId
     });
     
-    alert(`Current Configuration:\nToken: ${vapiToken ? "✅ Set" : "❌ Missing"}\nWorkflow ID: ${workflowId || "❌ Missing"}`);
+    alert(`Current Configuration:\nToken: ${vapiToken ? "✅ Set" : "❌ Missing"}`);
   };
 
   return (
@@ -398,7 +366,6 @@ const Agent = ({
             <div className="mt-2 text-sm text-gray-600">
               <p>Debug Info:</p>
               <p>Token: {process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN ? "✅ Set" : "❌ Missing"}</p>
-              <p>Workflow ID: {process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID ? "✅ Set" : "❌ Missing"}</p>
             </div>
             <div className="mt-2 flex gap-2">
               <button 
@@ -414,10 +381,10 @@ const Agent = ({
                 Test Connection
               </button>
               <button 
-                onClick={testWorkflow}
+                onClick={testAssistant}
                 className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
               >
-                Test Workflow
+                Test Assistant
               </button>
               <button 
                 onClick={showConfig}
