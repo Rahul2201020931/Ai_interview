@@ -3,14 +3,14 @@ import { google } from "@ai-sdk/google";
 import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
 
-// Define the expected shape of the request body, now with optional fields
+// Define the expected shape of the request body
 interface InterviewRequest {
-  type?: string;
-  role?: string;
-  level?: string;
-  techstack?: string;
-  amount?: number;
-  userid?: string;
+  type: string;
+  role: string;
+  level: string;
+  techstack: string;
+  amount: number;
+  userid: string;
 }
 
 // POST handler
@@ -23,28 +23,27 @@ export async function POST(request: Request) {
     return Response.json({ success: false, error: "Invalid JSON" }, { status: 400 });
   }
 
-  // --- START OF EDITS ---
-  // If a field is missing from the request body, provide a default value.
-  const finalBody = {
-    type: body.type || "mixed",
-    role: body.role || "Software Engineer",
-    level: body.level || "entry",
-    techstack: body.techstack || "React, Next.js",
-    amount: body.amount || 5,
-    userid: body.userid || "hgOmE7d7eONqP4cSB3a1qfVqgfe2",
-  };
-  // --- END OF EDITS ---
+  const { type, role, level, techstack, amount, userid } = body;
+
+  // Validate fields
+  if (!type || !role || !level || !techstack || !amount || !userid) {
+    return Response.json(
+      { success: false, error: "Missing required fields." },
+      { status: 400 }
+    );
+  }
 
   try {
-    // Generate questions using Gemini with the final values
+    // Generate questions using Gemini
     const { text: questions } = await generateText({
+      // FIX 1: Using the correct, standard model name
       model: google("gemini-1.5-flash-latest"),
       prompt: `Prepare questions for a job interview.
-        The job role is ${finalBody.role}.
-        The job experience level is ${finalBody.level}.
-        The tech stack used in the job is: ${finalBody.techstack}.
-        The focus between behavioural and technical questions should lean towards: ${finalBody.type}.
-        The amount of questions required is: ${finalBody.amount}.
+        The job role is ${role}.
+        The job experience level is ${level}.
+        The tech stack used in the job is: ${techstack}.
+        The focus between behavioural and technical questions should lean towards: ${type}.
+        The amount of questions required is: ${amount}.
         Please return only the questions, without any additional text.
         The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
         Return the questions formatted like this:
@@ -55,13 +54,19 @@ export async function POST(request: Request) {
 
     console.log("Generated questions raw text:", questions);
 
+    // FIX 2: Using a robust method to parse the JSON from the AI's response
     let parsedQuestions: string[];
     try {
+      // Find the string that looks like an array "[...]" in the AI's response
       const jsonMatch = questions.match(/\[.*\]/s);
+
       if (!jsonMatch) {
         throw new Error("Could not find a valid JSON array in the AI response.");
       }
+
+      // Parse only the matched part
       parsedQuestions = JSON.parse(jsonMatch[0]);
+
       if (!Array.isArray(parsedQuestions)) {
         throw new Error("Parsed result is not an array.");
       }
@@ -73,14 +78,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prepare the interview object using the final values
+    // Prepare the interview object
     const interview = {
-      role: finalBody.role,
-      type: finalBody.type,
-      level: finalBody.level,
-      techstack: finalBody.techstack.split(",").map((t) => t.trim()),
+      role,
+      type,
+      level,
+      techstack: techstack.split(",").map((t) => t.trim()),
       questions: parsedQuestions,
-      userId: finalBody.userid,
+      userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
@@ -89,9 +94,7 @@ export async function POST(request: Request) {
     // Save to Firestore
     await db.collection("interviews").add(interview);
 
-    // Also return the generated questions, which is useful for testing
-    return Response.json({ success: true, questions: parsedQuestions }, { status: 200 });
-
+    return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error generating interview:", error.message);
