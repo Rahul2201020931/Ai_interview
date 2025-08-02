@@ -4,7 +4,6 @@ import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { db } from "@/firebase/admin";
 import { z } from "zod";
-import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
 import {
   CreateFeedbackParams,
   GetFeedbackByInterviewIdParams,
