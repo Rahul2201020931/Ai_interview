@@ -1,53 +1,51 @@
-import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
+
 import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
 
-
-// Allow usage with the App Router on Vercel's Edge runtime
-//export const runtime = "edge";
-export const runtime = "nodejs"; 
-
-// Define the shape of the request body
-interface InterviewRequest {
-  type: string;
-  role: string;
-  level: string;
-  techstack: string | string[];
-  amount: number;
-  userid: string;
-}
-
-// POST /api/vapi/generate
 export async function POST(request: Request) {
-  console.log("🚀 API Route: Received POST request to /api/vapi/generate");
-  console.log("📡 Request headers:", Object.fromEntries(request.headers.entries()));
-  
-  // Add a simple test response first
+  const { type, role, level, techstack, amount, userid } = await request.json();
+
   try {
-    const body = await request.json();
-    console.log("📦 API Route: Request body:", body);
-    
-    // If we get here, the API is being called
-    console.log("✅ API Route: Successfully received request from Vapi");
-    
-    // Return a simple success response for testing
-    return Response.json({ 
-      success: true, 
-      message: "API is working",
-      receivedData: body,
-      timestamp: new Date().toISOString()
+    const { text: questions } = await generateText({
+      model: google("gemini-2.0-flash-001"),
+      prompt: `Prepare questions for a job interview.
+        The job role is ${role}.
+        The job experience level is ${level}.
+        The tech stack used in the job is: ${techstack}.
+        The focus between behavioural and technical questions should lean towards: ${type}.
+        The amount of questions required is: ${amount}.
+        Please return only the questions, without any additional text.
+        The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
+        Return the questions formatted like this:
+        ["Question 1", "Question 2", "Question 3"]
+        
+        Thank you! <3
+    `,
     });
-    
+
+    const interview = {
+      role: role,
+      type: type,
+      level: level,
+      techstack: techstack.split(","),
+      questions: JSON.parse(questions),
+      userId: userid,
+      finalized: true,
+      coverImage: getRandomInterviewCover(),
+      createdAt: new Date().toISOString(),
+    };
+
+    await db.collection("interviews").add(interview);
+
+    return Response.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error("❌ API Route: Failed to parse JSON:", error);
-    return Response.json({ success: false, error: "Invalid JSON" }, { status: 400 });
+    console.error("Error:", error);
+    return Response.json({ success: false, error: error }, { status: 500 });
   }
 }
 
-// Optional GET handler for testing
 export async function GET() {
-  console.log("API Route: Received GET request to /api/vapi/generate");
-  return Response.json({ success: true, message: "API is live 🚀" }, { status: 200 });
+  return Response.json({ success: true, data: "Thank you!" }, { status: 200 });
 }
-  

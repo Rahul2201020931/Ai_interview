@@ -2,29 +2,9 @@
 
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
-import { db } from "@/firebase/admin";
-import { z } from "zod";
-import {
-  CreateFeedbackParams,
-  GetFeedbackByInterviewIdParams,
-  GetLatestInterviewsParams,
-} from "@/types";
-import { Interview, Feedback } from '@/types'; // or wherever they're defined
 
-// Add schema for feedback validation (you can modify if needed)
-const feedbackSchema = z.object({
-  totalScore: z.number(),
-  categoryScores: z.object({
-    communicationSkills: z.number(),
-    technicalKnowledge: z.number(),
-    problemSolving: z.number(),
-    culturalFit: z.number(),
-    confidenceClarity: z.number(),
-  }),
-  strengths: z.string(),
-  areasForImprovement: z.string(),
-  finalAssessment: z.string(),
-});
+import { db } from "@/firebase/admin";
+import { feedbackSchema } from "@/constants";
 
 export async function createFeedback(params: CreateFeedbackParams) {
   const { interviewId, userId, transcript, feedbackId } = params;
@@ -88,6 +68,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
 
 export async function getInterviewById(id: string): Promise<Interview | null> {
   const interview = await db.collection("interviews").doc(id).get();
+
   return interview.data() as Interview | null;
 }
 

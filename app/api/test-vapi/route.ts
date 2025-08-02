@@ -22,11 +22,7 @@ export async function POST(request: Request) {
       receivedData: body,
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
-    return Response.json({
-      success: false,
-      error: "Failed to parse request body",
-      timestamp: new Date().toISOString()
-    }, { status: 400 });
+  } catch {
+    return Response.json({ success: false, error: "Invalid JSON" }, { status: 400 });
   }
 } 

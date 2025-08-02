@@ -2,8 +2,6 @@
 
 import { auth, db } from "@/firebase/admin";
 import { cookies } from "next/headers";
-import { User } from "@/types";
-import { SignUpParams, SignInParams } from "@/types";
 
 // Session duration (1 week)
 const SESSION_DURATION = 60 * 60 * 24 * 7;
@@ -55,11 +53,13 @@ export async function signUp(params: SignUpParams) {
     console.error("Error creating user:", error);
 
     // Handle Firebase specific errors
-    if (error instanceof Error && error.message.includes("auth/email-already-exists")) {
-      return {
-        success: false,
-        message: "This email is already in use",
-      };
+    if (error instanceof Error) {
+      if (error.message.includes("email-already-in-use")) {
+        return {
+          success: false,
+          message: "Email already exists. Please sign in.",
+        };
+      }
     }
 
     return {
@@ -86,7 +86,7 @@ export async function signIn(params: SignInParams) {
 
     return {
       success: false,
-      message: "Failed to log into account. Please try again.",
+      message: "Invalid credentials. Please try again.",
     };
   }
 }

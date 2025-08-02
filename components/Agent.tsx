@@ -3,13 +3,13 @@
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
 import { createFeedback } from "@/lib/actions/general.action";
 import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
 
-// Call status enum
 enum CallStatus {
   INACTIVE = "INACTIVE",
   CONNECTING = "CONNECTING",
@@ -30,6 +30,17 @@ interface Message {
   transcriptType: "final" | "interim";
 }
 
+interface VapiError {
+  action?: string;
+  errorMsg?: string;
+  error?: {
+    type?: string;
+    msg?: string;
+  };
+  callClientId?: string;
+  message?: string;
+}
+
 interface AgentProps {
   userName: string;
   userId?: string;
@@ -48,38 +59,28 @@ const Agent = ({
   questions,
 }: AgentProps) => {
   const router = useRouter();
-
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [lastMessage, setLastMessage] = useState("");
+  const [lastMessage, setLastMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  // Set up Vapi listeners
   useEffect(() => {
-    // Log environment variables for debugging
-    console.log("Environment Variables Check:", {
-      vapiToken: process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN ? "✅ Set" : "❌ Missing",
-      vapiWorkflowId: process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID ? "✅ Set" : "❌ Missing",
-      tokenLength: process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN?.length,
-      workflowId: process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID,
-      tokenPrefix: process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN?.substring(0, 10) + "..."
-    });
-
     const onCallStart = () => {
       console.log("Call started successfully");
       setCallStatus(CallStatus.ACTIVE);
     };
-    
+
     const onCallEnd = () => {
       console.log("Call ended normally");
       setCallStatus(CallStatus.FINISHED);
     };
 
-    const onMessage = (msg: Message) => {
-      console.log("Received message:", msg);
-      if (msg.type === "transcript" && msg.transcriptType === "final") {
-        setMessages((prev) => [...prev, { role: msg.role, content: msg.transcript }]);
+    const onMessage = (message: Message) => {
+      console.log("Received message:", message);
+      if (message.type === "transcript" && message.transcriptType === "final") {
+        const newMessage = { role: message.role, content: message.transcript };
+        setMessages((prev) => [...prev, newMessage]);
       }
     };
 
@@ -87,34 +88,35 @@ const Agent = ({
       console.log("Speech started");
       setIsSpeaking(true);
     };
-    
+
     const onSpeechEnd = () => {
       console.log("Speech ended");
       setIsSpeaking(false);
     };
-    
-    const onError = (err: any) => {
+
+    const onError = (err: unknown) => {
+      const vapiError = err as VapiError;
+      
       console.error("Call Error Details:", {
-        action: err.action,
-        errorMsg: err.errorMsg,
-        error: err.error,
-        callClientId: err.callClientId,
+        action: vapiError?.action,
+        errorMsg: vapiError?.errorMsg,
+        error: vapiError?.error,
+        callClientId: vapiError?.callClientId,
         fullError: err
       });
       
-      // Log the entire error object for debugging
       console.error("Full Vapi Error Object:", JSON.stringify(err, null, 2));
       
       let errorMessage = "An error occurred during the call";
       
-      if (err.errorMsg) {
-        errorMessage = err.errorMsg;
-      } else if (err.error?.msg) {
-        errorMessage = err.error.msg;
-      } else if (err.error?.type) {
-        errorMessage = `Error type: ${err.error.type}`;
-      } else if (err.message) {
-        errorMessage = err.message;
+      if (vapiError?.errorMsg) {
+        errorMessage = vapiError.errorMsg;
+      } else if (vapiError?.error?.msg) {
+        errorMessage = vapiError.error.msg;
+      } else if (vapiError?.error?.type) {
+        errorMessage = `Error type: ${vapiError.error.type}`;
+      } else if (vapiError?.message) {
+        errorMessage = vapiError.message;
       }
       
       setError(errorMessage);
@@ -169,7 +171,6 @@ const Agent = ({
     }
   }, [messages, callStatus, type, router, handleGenerateFeedback]);
 
-  // Start the voice call
   const handleCall = async () => {
     try {
       setError(null);
@@ -189,12 +190,13 @@ const Agent = ({
       const vapiToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
       const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
       
-      console.log("Vapi Configuration Check:", {
+      console.log("🔍 Vapi Configuration Check:", {
         hasToken: !!vapiToken,
         hasWorkflowId: !!workflowId,
         tokenLength: vapiToken?.length,
         workflowId: workflowId,
-        tokenPrefix: vapiToken?.substring(0, 10) + "..."
+        tokenPrefix: vapiToken?.substring(0, 10) + "...",
+        type: type
       });
 
       if (!vapiToken) {
@@ -206,43 +208,54 @@ const Agent = ({
           throw new Error("Vapi workflow ID is not configured. Please set NEXT_PUBLIC_VAPI_WORKFLOW_ID in your environment variables.");
         }
 
-        const variableValues = { username: userName, userid: userId };
-        
-        console.log("Starting Vapi call with workflow:", {
+        console.log("🚀 Starting Vapi call with workflow:", {
           workflowId,
           userName,
           userId,
-          variableValues
+          variableValues: {
+            username: userName,
+            userid: userId,
+          }
         });
 
+        // Updated according to new Vapi guidelines
         await vapi.start(
           undefined,
           undefined,
           undefined,
           workflowId,
           {
-            variableValues,
+            variableValues: {
+              username: userName,
+              userid: userId,
+            },
           }
         );
       } else {
-        const formattedQuestions = questions?.map((q) => `- ${q}`).join("\n") || "";
+        let formattedQuestions = "";
+        if (questions) {
+          formattedQuestions = questions
+            .map((question) => `- ${question}`)
+            .join("\n");
+        }
 
-        console.log("Starting Vapi call with assistant:", {
+        console.log("🚀 Starting Vapi call with assistant:", {
           questions: formattedQuestions
         });
 
         await vapi.start(interviewer as CreateAssistantDTO, {
-          variableValues: { questions: formattedQuestions },
+          variableValues: {
+            questions: formattedQuestions,
+          },
         });
       }
     } catch (err) {
-      console.error("Failed to start call:", err);
+      console.error("❌ Failed to start call:", err);
       setError(err instanceof Error ? err.message : "Failed to start the call");
       setCallStatus(CallStatus.ERROR);
     }
   };
 
-  // End the call manually
   const handleDisconnect = () => {
     setCallStatus(CallStatus.FINISHED);
     vapi.stop();
@@ -268,36 +281,19 @@ const Agent = ({
         tokenLength: vapiToken?.length
       });
 
-      // Test basic Vapi initialization
       if (!vapiToken) {
         throw new Error("Vapi token is missing");
       }
 
-      if (!workflowId) {
-        throw new Error("Workflow ID is missing");
-      }
-
       console.log("✅ Configuration looks good, attempting test call...");
 
-      // Try a minimal test call with exact variable names from your workflow
-      await vapi.start(
-        undefined,
-        undefined,
-        undefined,
-        workflowId,
-        {
-          variableValues: { 
-            username: "Test User", 
-            userid: "test-123",
-            // Add any other variables your workflow expects
-            role: "frontend",
-            type: "technical", 
-            level: "entry",
-            amount: 3,
-            techstack: "React,TypeScript"
-          },
-        }
-      );
+      console.log("🤖 Testing with assistant...");
+      
+      await vapi.start(interviewer as CreateAssistantDTO, {
+        variableValues: { 
+          questions: "What is React?\nHow does state work?\nExplain components."
+        },
+      });
 
       console.log("✅ Test call initiated successfully!");
       
@@ -307,23 +303,84 @@ const Agent = ({
     }
   };
 
+  // Test workflow specifically
+  const testWorkflow = async () => {
+    try {
+      console.log("🧪 Testing workflow specifically...");
+      
+      const vapiToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
+      const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
+      
+      console.log("🔍 Current Workflow ID:", workflowId);
+      console.log("🔍 Token available:", !!vapiToken);
+      
+      if (!vapiToken || !workflowId) {
+        throw new Error("Missing Vapi token or workflow ID");
+      }
+
+      console.log("🔍 Testing workflow:", workflowId);
+      
+      await vapi.start(
+        undefined,
+        undefined,
+        undefined,
+        workflowId,
+        {
+          variableValues: {
+            username: "Test User",
+            userid: "test-user-id",
+          },
+        }
+      );
+
+      console.log("✅ Workflow test call initiated successfully!");
+      
+    } catch (error) {
+      console.error("❌ Workflow test failed:", error);
+      setError(`Workflow test failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
+  };
+
+  // Display current configuration
+  const showConfig = () => {
+    const vapiToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
+    const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
+    
+    console.log("🔧 Current Configuration:", {
+      token: vapiToken ? `${vapiToken.substring(0, 10)}...` : "Missing",
+      workflowId: workflowId || "Missing",
+      tokenLength: vapiToken?.length,
+      hasToken: !!vapiToken,
+      hasWorkflowId: !!workflowId
+    });
+    
+    alert(`Current Configuration:\nToken: ${vapiToken ? "✅ Set" : "❌ Missing"}\nWorkflow ID: ${workflowId || "❌ Missing"}`);
+  };
+
   return (
     <>
-      {/* Interviewer & User Avatars */}
       <div className="call-view">
+        {/* AI Interviewer Card */}
         <div className="card-interviewer">
           <div className="avatar">
-            <Image src="/ai-avatar.png" alt="AI Avatar" width={65} height={54} />
+            <Image
+              src="/ai-avatar.png"
+              alt="profile-image"
+              width={65}
+              height={54}
+              className="object-cover"
+            />
             {isSpeaking && <span className="animate-speak" />}
           </div>
           <h3>AI Interviewer</h3>
         </div>
 
+        {/* User Profile Card */}
         <div className="card-border">
           <div className="card-content">
             <Image
               src="/user-avatar.png"
-              alt="User Avatar"
+              alt="profile-image"
               width={539}
               height={539}
               className="rounded-full object-cover size-[120px]"
@@ -355,6 +412,18 @@ const Agent = ({
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
               >
                 Test Connection
+              </button>
+              <button 
+                onClick={testWorkflow}
+                className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+              >
+                Test Workflow
+              </button>
+              <button 
+                onClick={showConfig}
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              >
+                Show Config
               </button>
             </div>
           </div>
