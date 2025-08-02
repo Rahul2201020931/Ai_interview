@@ -97,3 +97,8 @@ interface InterviewFormProps {
 interface TechIconProps {
   techStack: string[];
 }
+export interface CreateAssistantDTO {
+  // existing properties...
+  workflow?: string;
+  assistantId?: string;
+}
