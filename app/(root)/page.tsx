@@ -35,25 +35,47 @@ async function Home() {
 
   return (
     <>
+      {/* Hero Section */}
       <section className="card-cta animate-fadeIn">
-        <div className="flex flex-col gap-6 max-w-lg">
-          <h2 className="gradient-text">Get Interview-Ready with AI-Powered Practice & Feedback</h2>
-          <p className="text-lg shimmer">
-            Practice real interview questions & get instant feedback
-          </p>
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col gap-6 max-w-lg">
+            <div className="space-y-4">
+              <h2 className="gradient-text text-3xl lg:text-4xl font-bold leading-tight">
+                Get Interview-Ready with AI-Powered Practice & Feedback
+              </h2>
+              <p className="text-lg shimmer leading-relaxed">
+                Practice real interview questions & get instant feedback to improve your skills
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-sm">20+ Interview Types</span>
+                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-sm">AI Feedback</span>
+                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-sm">Real-time Practice</span>
+              </div>
+            </div>
 
-          <Button asChild className="btn-primary max-sm:w-full animate-float">
-            <Link href="/interview">Start an Interview</Link>
-          </Button>
+            <Button asChild className="btn-primary max-sm:w-full animate-float group">
+              <Link href="/interview" className="flex items-center gap-2">
+                Start an Interview
+                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </Button>
+          </div>
+
+          <div className="relative flex-shrink-0 w-full max-w-md lg:max-w-lg">
+            <div className="relative w-full h-full">
+              <Image
+                src="/robot.png"
+                alt="AI Interviewer"
+                width={900}
+                height={900}
+                className="max-sm:hidden drop-shadow-2xl w-full h-auto object-contain"
+                priority
+              />
+            </div>
+          </div>
         </div>
-
-        <Image
-          src="/robot.png"
-          alt="robo-dude"
-          width={400}
-          height={400}
-          className="max-sm:hidden"
-        />
       </section>
 
       <section className="flex flex-col gap-6 mt-8 animate-slideUp">

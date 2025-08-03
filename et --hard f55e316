@@ -1,0 +1,10 @@
+[33m5f01997[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m  Major UI/UX improvements and bug fixes
+[33mf55e316[m Enhanced UI with modern effects and animations: Added glassmorphism, gradient text, hover effects, random star background, and improved visual hierarchy
+[33m7a5dd5f[m Add comprehensive README with setup instructions and troubleshooting
+[33m6da8550[m fixed all bugs and remove the workflow with assistance
+[33mf78a59b[m Fixed all linting errors and improved error handling
+[33mb23aa93[m Add simple API test to debug Vapi workflow
+[33md487bc5[m Fix Vapi integration and add comprehensive error handling - Fix microphone permission issues - Add detailed logging for debugging - Improve error handling for Vapi calls - Add environment variable validation - Fix TypeScript errors and non-null assertions - Consolidate duplicate constants - Add test endpoints for debugging
+[33m6e45cda[m new ai mock interview feature implementation
+[33med49a7a[m new ai
+[33m9fed445[m Revert "Update API to handle missing fields"

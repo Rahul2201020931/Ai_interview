@@ -241,6 +241,12 @@ const Agent = ({
     vapi.stop();
   };
 
+  const handleUserResponse = (response: string) => {
+    // For now, just log the response
+    console.log("User response:", response);
+    // In a real implementation, this would send the response to the AI
+  };
+
   // Reset error and try again
   const handleRetry = () => {
     setError(null);
@@ -412,8 +418,32 @@ const Agent = ({
         </div>
       )}
 
+      {/* Quick Response Buttons */}
+      {callStatus === CallStatus.ACTIVE && lastMessage && (
+        <div className="flex flex-wrap gap-2 justify-center animate-fadeIn mt-6">
+          <button 
+            onClick={() => handleUserResponse("Hello AI!")}
+            className="px-4 py-2 bg-blue-500/20 text-blue-200 rounded-lg hover:bg-blue-500/30 transition-all duration-300 text-sm"
+          >
+            Hello AI!
+          </button>
+          <button 
+            onClick={() => handleUserResponse("I'm ready!")}
+            className="px-4 py-2 bg-green-500/20 text-green-200 rounded-lg hover:bg-green-500/30 transition-all duration-300 text-sm"
+          >
+            I'm ready!
+          </button>
+          <button 
+            onClick={() => handleUserResponse("Thank you!")}
+            className="px-4 py-2 bg-purple-500/20 text-purple-200 rounded-lg hover:bg-purple-500/30 transition-all duration-300 text-sm"
+          >
+            Thank you!
+          </button>
+        </div>
+      )}
+
       {/* Call Controls */}
-      <div className="w-full flex justify-center animate-slideUp" style={{ animationDelay: '0.4s' }}>
+      <div className="w-full flex justify-center animate-slideUp mt-8" style={{ animationDelay: '0.4s' }}>
         {callStatus !== CallStatus.ACTIVE ? (
           <button 
             className="relative btn-call group" 

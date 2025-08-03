@@ -10,7 +10,7 @@ const monaSans = Mona_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Interview Prep",
+  title: "Preply",
   description: "Prepare for your next interview with ease",
 };
 
