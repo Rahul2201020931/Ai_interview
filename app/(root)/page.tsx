@@ -38,18 +38,18 @@ async function Home() {
       {/* Hero Section */}
       <section className="card-cta animate-fadeIn">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div className="flex flex-col gap-6 max-w-lg">
+          <div className="flex flex-col gap-6 max-w-lg w-full">
             <div className="space-y-4">
-              <h2 className="gradient-text text-3xl lg:text-4xl font-bold leading-tight">
+              <h2 className="gradient-text text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight break-words">
                 Get Interview-Ready with AI-Powered Practice & Feedback
               </h2>
-              <p className="text-lg shimmer leading-relaxed">
+              <p className="text-base sm:text-lg shimmer leading-relaxed break-words">
                 Practice real interview questions & get instant feedback to improve your skills
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-sm">20+ Interview Types</span>
-                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-sm">AI Feedback</span>
-                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-sm">Real-time Practice</span>
+                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-xs sm:text-sm">20+ Interview Types</span>
+                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-xs sm:text-sm">AI Feedback</span>
+                <span className="px-3 py-1 bg-primary-200/20 rounded-full text-xs sm:text-sm">Real-time Practice</span>
               </div>
             </div>
 
