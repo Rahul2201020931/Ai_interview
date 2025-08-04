@@ -12,6 +12,7 @@ const monaSans = Mona_Sans({
 export const metadata: Metadata = {
   title: "Preply",
   description: "Prepare for your next interview with ease",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -21,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+      </head>
       <body className={`${monaSans.className} antialiased pattern`}>
         {children}
 

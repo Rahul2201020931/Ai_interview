@@ -144,9 +144,11 @@
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
-  /* Digital Rain Background Effect */
+  /* Simplified Background Effect for Better Performance */
   body::before {
     content: '';
     position: fixed;
@@ -157,14 +159,13 @@
     background: 
       radial-gradient(circle at 50% 50%, rgba(255,255,255,0.9) 0%, transparent 3px),
       radial-gradient(circle at 50% 50%, rgba(173,216,230,0.7) 0%, transparent 2px),
-      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.6) 0%, transparent 1.5px),
-      radial-gradient(circle at 50% 50%, rgba(221,160,221,0.5) 0%, transparent 1px),
-      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 0.8px);
-    background-size: 67px 93px, 143px 87px, 178px 156px, 234px 112px, 189px 134px;
-    background-position: 23px 45px, 156px 78px, 89px 123px, 234px 67px, 45px 189px;
-    animation: randomMove1 20s ease-in-out infinite, twinkle 3s ease-in-out infinite;
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.6) 0%, transparent 1.5px);
+    background-size: 67px 93px, 143px 87px, 178px 156px;
+    background-position: 23px 45px, 156px 78px, 89px 123px;
+    animation: randomMove1 30s ease-in-out infinite;
     pointer-events: none;
     z-index: -1;
+    will-change: background-position;
   }
   
   body::after {
@@ -176,25 +177,26 @@
     height: 100%;
     background: 
       radial-gradient(circle at 50% 50%, rgba(255,255,255,0.6) 0%, transparent 1.2px),
-      radial-gradient(circle at 50% 50%, rgba(135,206,250,0.4) 0%, transparent 0.9px),
-      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3) 0%, transparent 0.6px);
-    background-size: 123px 89px, 167px 145px, 198px 123px;
-    background-position: 78px 156px, 134px 67px, 223px 145px;
-    animation: randomMove2 25s ease-in-out infinite, twinkle 4s ease-in-out infinite reverse;
+      radial-gradient(circle at 50% 50%, rgba(135,206,250,0.4) 0%, transparent 0.9px);
+    background-size: 123px 89px, 167px 145px;
+    background-position: 78px 156px, 134px 67px;
+    animation: randomMove2 35s ease-in-out infinite;
     pointer-events: none;
     z-index: -1;
+    will-change: background-position;
   }
 
-  /* Shooting Stars */
+  /* Simplified Shooting Stars */
   .shooting-star {
     position: fixed;
     width: 2px;
     height: 2px;
     background: linear-gradient(45deg, rgba(255,255,255,0.8), transparent);
     border-radius: 50%;
-    animation: randomShootingStar 8s ease-in-out infinite;
+    animation: randomShootingStar 10s ease-in-out infinite;
     pointer-events: none;
     z-index: -1;
+    will-change: transform, opacity;
   }
 
   .shooting-star:nth-child(1) {
@@ -206,19 +208,19 @@
   .shooting-star:nth-child(2) {
     top: 30%;
     left: 80%;
-    animation-delay: 2s;
+    animation-delay: 3s;
   }
 
   .shooting-star:nth-child(3) {
     top: 60%;
     left: 10%;
-    animation-delay: 4s;
+    animation-delay: 6s;
   }
 
   .shooting-star:nth-child(4) {
     top: 80%;
     left: 70%;
-    animation-delay: 6s;
+    animation-delay: 9s;
   }
   
   p {
@@ -240,34 +242,25 @@
 
 @keyframes randomMove1 {
   0% {
-    background-position: 23px 45px, 156px 78px, 89px 123px, 234px 67px, 45px 189px;
-  }
-  25% {
-    background-position: 167px 34px, 78px 145px, 223px 89px, 56px 178px, 189px 67px;
+    background-position: 23px 45px, 156px 78px, 89px 123px;
   }
   50% {
-    background-position: 45px 167px, 234px 23px, 123px 234px, 89px 45px, 178px 123px;
-  }
-  75% {
-    background-position: 145px 89px, 67px 223px, 234px 156px, 123px 78px, 45px 234px;
+    background-position: 167px 34px, 78px 145px, 223px 89px;
   }
   100% {
-    background-position: 23px 45px, 156px 78px, 89px 123px, 234px 67px, 45px 189px;
+    background-position: 23px 45px, 156px 78px, 89px 123px;
   }
 }
 
 @keyframes randomMove2 {
   0% {
-    background-position: 78px 156px, 134px 67px, 223px 145px;
+    background-position: 78px 156px, 134px 67px;
   }
-  33% {
-    background-position: 189px 34px, 67px 223px, 145px 89px;
-  }
-  66% {
-    background-position: 123px 178px, 234px 45px, 78px 167px;
+  50% {
+    background-position: 189px 34px, 67px 223px;
   }
   100% {
-    background-position: 78px 156px, 134px 67px, 223px 145px;
+    background-position: 78px 156px, 134px 67px;
   }
 }
 
@@ -279,17 +272,9 @@
   20% {
     opacity: 1;
   }
-  40% {
+  80% {
     transform: translateX(100px) translateY(-50px) scale(1);
     opacity: 0.8;
-  }
-  60% {
-    transform: translateX(-50px) translateY(80px) scale(0.8);
-    opacity: 0.6;
-  }
-  80% {
-    transform: translateX(80px) translateY(-30px) scale(1.2);
-    opacity: 0.9;
   }
   100% {
     transform: translateX(0) translateY(0) scale(0.5);
@@ -298,14 +283,11 @@
 }
 
 @keyframes twinkle {
-  0% {
+  0%, 100% {
     opacity: 0.5;
   }
   50% {
     opacity: 1;
-  }
-  100% {
-    opacity: 0.5;
   }
 }
 
@@ -594,4 +576,63 @@
   100% {
     background-position: 200% 0;
   }
+}
+
+/* Fallback styles for better browser compatibility */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after,
+  .shooting-star {
+    animation: none !important;
+  }
+}
+
+/* Ensure proper rendering on different devices */
+@media screen and (max-width: 768px) {
+  body::before,
+  body::after {
+    background-size: 50px 70px, 100px 60px, 120px 100px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  body::before,
+  body::after {
+    opacity: 0.3;
+  }
+}
+
+/* Print styles */
+@media print {
+  body::before,
+  body::after,
+  .shooting-star {
+    display: none !important;
+  }
+}
+
+/* Ensure proper font loading */
+@font-face {
+  font-family: 'Mona Sans';
+  font-display: swap;
+}
+
+/* Fix for potential layout shifts */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure proper box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Improve text rendering */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-feature-settings: "kern" 1;
+  font-feature-settings: "kern" 1;
 }
