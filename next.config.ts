@@ -17,13 +17,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    optimizeCss: true,
-  },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
-  swcMinify: true,
 };
 
 export default nextConfig;
