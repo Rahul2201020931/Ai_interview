@@ -2,6 +2,8 @@
 
 A modern, AI-powered mock interview platform built with Next.js, React, and Vapi.ai for real-time voice interactions. Practice technical and behavioral interviews with AI feedback.
 
+👉 **Live Demo**: [AI Mock Interview Platform](https://ai-interview-vw1b-fxg0hqmvd-rahuls-projects-e7eba359.vercel.app/)
+
 ## 🚀 Features
 
 - **Real-time Voice Interviews**: Conduct interviews using Vapi.ai's voice technology
@@ -214,32 +216,22 @@ GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_key
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions to make this platform even better!  
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+1. Fork the repository  
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)  
+3. Commit your changes (`git commit -m 'Add amazing feature'`)  
+4. Push to the branch (`git push origin feature/amazing-feature`)  
+5. Open a Pull Request 🚀  
 
 ## 🙏 Acknowledgments
 
-- [Vapi.ai](https://vapi.ai) for voice AI technology
-- [Firebase](https://firebase.google.com) for backend services
-- [Next.js](https://nextjs.org) for the React framework
-- [Tailwind CSS](https://tailwindcss.com) for styling
+Special thanks to the amazing tools and platforms that power this project:  
 
-## 📞 Support
+- [Vapi.ai](https://vapi.ai) – Voice AI technology  
+- [Firebase](https://firebase.google.com) – Backend services  
+- [Next.js](https://nextjs.org) – React framework  
+- [Tailwind CSS](https://tailwindcss.com) – Styling  
 
-If you encounter any issues or have questions:
 
-1. Check the troubleshooting section above
-2. Review the debug tools in the application
-3. Open an issue on GitHub
-4. Contact the development team
-
----
-
-**Happy Interviewing! 🎤✨**
+✨ **Happy Interviewing & Keep Practicing! 🎤🚀**  
