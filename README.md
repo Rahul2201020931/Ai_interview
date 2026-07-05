@@ -2,7 +2,7 @@
 
 A modern, AI-powered mock interview platform built with Next.js, React, and Vapi.ai for real-time voice interactions. Practice technical and behavioral interviews with AI feedback.
 
-👉 **Live Demo**: [AI Mock Interview Platform](ai-interview-vw1b.vercel.app)
+👉 **Live Demo**: [AI Mock Interview Platform](https://ai-interview-vw1b.vercel.app/sign-in)
 
 ## 🚀 Features
 
